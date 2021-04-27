@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torchsummary import summary
 
 
 class LinearBN(nn.Module):
@@ -132,5 +133,33 @@ class SimpleModel(nn.Module):
             x = self.out(x)
         return x
 
+
+class FitModel(nn.Module):
+    def __init__(self, in_dim):
+        super(FitModel, self).__init__()
+
+        self.layer1 = LinearBN(in_dim, 8, act='tanh')
+        self.layer2 = LinearBN(8, 1, act=None)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.layer2(x)
+        return x
+
+
+class LinearModel(nn.Module):
+    def __init__(self, in_dim):
+        super(LinearModel, self).__init__()
+
+        self.layer = LinearBN(in_dim, 1, None)
+
+    def forward(self, x):
+        x = self.layer(x)
+        return x
+
 if __name__ == '__main__':
-    print(SimpleModel(29, 32, 2))
+    model = FitModel(29)
+    pt = torch.load('output/i29w8d2n2/bestmodel.pt')
+    for p in pt:
+        print(p, pt[p])
+    # summary(LinearModel(29), (29,))

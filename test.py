@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from dataset import TrainDataset, TestDataset
 from torch.utils.data import DataLoader
-from model import BPModel, SimpleModel
+from model import BPModel, SimpleModel, FitModel, LinearModel
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
@@ -20,11 +20,13 @@ def test():
     test_data = pd.read_table('./zhengqi_test.txt', sep="\t")
     if len(drop_list):
         test_data.drop(drop_list, axis=1, inplace=True)
-    test_dataset = TestDataset(test_data, normalized=False)
+    test_dataset = TestDataset(test_data, normalized=True)
     test_reader = DataLoader(test_dataset, batch_size=1, shuffle=False)
     
-    model = SimpleModel(len(test_data.columns), 32, 2)
-    model.load_state_dict(torch.load('output/i29w32d2s1/bestmodel.pt'))
+    # model = SimpleModel(len(test_data.columns), 32, 2)
+    # model = FitModel(len(test_data.columns))
+    model = LinearModel(len(test_data.columns))
+    model.load_state_dict(torch.load('output/i29w1d1n1/bestmodel.pt'))
     model.eval()
     
     result = []

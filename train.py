@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch import optim
-from model import BPModel, FC_UNet, SimpleModel
+from model import BPModel, FC_UNet, SimpleModel, FitModel, LinearModel
 from dataset import TrainDataset, ValidDataset, TestDataset
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
@@ -15,14 +15,16 @@ def train(seed=0):
     if len(drop_list):
         data.drop(drop_list, axis=1, inplace=True)
     train_data, valid_data = train_test_split(data, test_size=0.5, random_state=seed)
-    train_dataset = TrainDataset(train_data, normalized=False)
-    valid_dataset = ValidDataset(valid_data, normalized=False)
+    train_dataset = TrainDataset(train_data, normalized=True)
+    valid_dataset = ValidDataset(valid_data, normalized=True)
     train_reader = DataLoader(train_dataset, batch_size=256, shuffle=True)
     valid_reader = DataLoader(valid_dataset, batch_size=256, shuffle=True)
-    model = SimpleModel(len(train_data.columns) - 1, 32, 2)
-    # model.load_state_dict(torch.load('output/w64d4/bestmodel.pt'))
+    model = FitModel(len(train_data.columns) - 1)
+    # model.load_state_dict(torch.load('output/i29w8d2n2/bestmodel.pt'))
     model.cuda()
-    optimizer = optim.SGD(model.parameters(), lr=0.05, momentum=0.9)
+    # optimizer = optim.SGD(model.parameters(), lr=0.05, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=1e-6)
+    # scheduler = optim.lr_scheduler.StepLR(optimizer, 30, 0.1)
     criterion = nn.MSELoss()
     best_score = 1000000
     for epoch in range(101):
@@ -37,8 +39,9 @@ def train(seed=0):
                 loss = criterion(out, y)
                 loss.backward()
                 optimizer.step()
-                print('epoch', epoch, 'batch', batch_ndx, 'loss', loss)
+                print('epoch', epoch, 'batch', batch_ndx, 'loss', loss.item())
         
+        # scheduler.step()
         model.eval()
         score = 0
         for batch_ndx, sample in enumerate(valid_reader):
@@ -49,7 +52,7 @@ def train(seed=0):
                 out = model(x)
                 score += criterion(out, y) * x.shape[0]
         score = score / len(valid_dataset)
-        print('epoch', epoch, 'score', score)
+        print('epoch', epoch, 'score', score.item())
 
         if score < best_score:
             best_score = score
