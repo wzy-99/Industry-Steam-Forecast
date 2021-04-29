@@ -13,9 +13,11 @@ def read_result(path):
 
 
 def compare():
+    result1 = read_result('final.txt')
     # result1 = read_result('output/i29w1d1n1/result.txt')
-    result2 = read_result('output/i29w8d2n2/result.txt')
-    # result2 = read_result('output/i29w32d2n3/result.txt')
+    # result2 = read_result('output/i29w8d2n1/result.txt')
+    # result2 = read_result('output/i29w32d2v3/result.txt')
+    # result2 = read_result('predict.txt')
     delt = np.abs(result1 - result2)
     mean = np.mean(delt)
     m = np.max(delt)

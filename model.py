@@ -157,9 +157,10 @@ class LinearModel(nn.Module):
         x = self.layer(x)
         return x
 
+
 if __name__ == '__main__':
-    model = FitModel(29)
-    pt = torch.load('output/i29w8d2n2/bestmodel.pt')
-    for p in pt:
-        print(p, pt[p])
-    # summary(LinearModel(29), (29,))
+    # model = FitModel(29)
+    # pt = torch.load('output/i29w8d2n2/bestmodel.pt')
+    # for p in pt:
+    #     print(p, pt[p])
+    summary(FitModel(29), (29,))
